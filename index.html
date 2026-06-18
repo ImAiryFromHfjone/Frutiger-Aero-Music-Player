@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frutiger Aero Player</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Segoe UI",sans-serif;
+}
+
+body{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+
+background:
+radial-gradient(circle at top left,#ffffff 0%,transparent 30%),
+linear-gradient(180deg,#7fe8ff,#4db8ff,#1e90ff);
+
+overflow:hidden;
+transition:.5s;
+}
+
+/* 🌙 NIGHT MODE */
+body.night{
+background:
+radial-gradient(circle at top left,#071522 0%,transparent 30%),
+linear-gradient(180deg,#05070c,#02040a);
+}
+
+/* bubbles */
+.bubble{
+position:fixed;
+border-radius:50%;
+background:rgba(255,255,255,.25);
+backdrop-filter:blur(12px);
+}
+.b1{width:200px;height:200px;top:10%;left:8%;}
+.b2{width:120px;height:120px;bottom:10%;left:12%;}
+.b3{width:220px;height:220px;top:15%;right:8%;}
+
+/* toggle */
+.toggle{
+position:fixed;
+top:20px;
+right:20px;
+
+padding:10px 14px;
+border:none;
+border-radius:999px;
+
+background:rgba(255,255,255,.3);
+backdrop-filter:blur(15px);
+
+cursor:pointer;
+font-weight:bold;
+color:#0a3d66;
+}
+
+/* player */
+.ipod{
+width:390px;
+height:650px;
+
+background:rgba(255,255,255,.25);
+backdrop-filter:blur(25px);
+
+border-radius:55px;
+
+border:1px solid rgba(255,255,255,.5);
+
+box-shadow:0 30px 80px rgba(0,0,0,.25);
+
+padding:20px;
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:space-between;
+position:relative;
+}
+
+.ipod::before{
+content:"";
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:45%;
+background:linear-gradient(rgba(255,255,255,.5),transparent);
+border-radius:55px;
+}
+
+/* SCREEN */
+.screen{
+width:100%;
+height:360px;
+
+border-radius:30px;
+
+background:rgba(0,0,0,.18);
+backdrop-filter:blur(10px);
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+
+color:white;
+text-align:center;
+padding:15px;
+}
+
+/* 🎧 ALBUM COVER */
+.album{
+width:170px;
+height:170px;
+
+border-radius:30px;
+
+margin-bottom:10px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:2.6rem;
+
+background:
+radial-gradient(circle at top left,#bde7ff,#4db8ff,#1e90ff);
+
+box-shadow:
+0 12px 30px rgba(0,0,0,.25),
+inset 0 1px 0 rgba(255,255,255,.8);
+
+transition:.5s;
+}
+
+/* 🌙 DARK COVER WHEN NIGHT */
+body.night .album{
+background:
+radial-gradient(circle at top left,#0c1f33,#081522,#050b14);
+
+box-shadow:
+0 12px 30px rgba(0,0,0,.6),
+inset 0 1px 0 rgba(255,255,255,.1);
+}
+
+/* SONG TEXT */
+.song{
+font-size:1.1rem;
+font-weight:bold;
+}
+
+/* LABEL */
+.brand{
+margin-top:6px;
+font-size:.9rem;
+color:#bde7ff;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+/* progress */
+.progress{
+width:100%;
+height:6px;
+background:rgba(255,255,255,.25);
+border-radius:10px;
+margin-top:12px;
+overflow:hidden;
+}
+
+.bar{
+height:100%;
+width:0%;
+background:#bde7ff;
+}
+
+.timeRow{
+display:flex;
+justify-content:space-between;
+width:100%;
+font-size:.85rem;
+margin-top:5px;
+color:#bde7ff;
+}
+
+/* controls */
+.controls{
+display:flex;
+gap:10px;
+}
+
+button{
+border:none;
+padding:12px 14px;
+
+border-radius:14px;
+
+background:rgba(255,255,255,.3);
+
+cursor:pointer;
+font-weight:bold;
+color:#0a3d66;
+}
+
+button:hover{
+transform:translateY(-2px);
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="toggle" onclick="toggleTheme()">🌙 / ☀️</button>
+
+<div class="bubble b1"></div>
+<div class="bubble b2"></div>
+<div class="bubble b3"></div>
+
+<div class="ipod">
+
+<div class="screen">
+
+<div class="album" id="icon">🔵</div>
+
+<div class="song" id="title">Ready</div>
+
+<div class="brand">💿 Frutiger Aero Player</div>
+
+<audio id="audio"></audio>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<div class="timeRow">
+<span id="current">0:00</span>
+<span id="remaining">-0:00</span>
+</div>
+
+</div>
+
+<div class="controls">
+<button onclick="prev()">⏮</button>
+<button onclick="playPause()">▶</button>
+<button onclick="next()">⏭</button>
+</div>
+
+</div>
+
+<script>
+
+const songs=[
+"song1.mp3",
+"song2.mp3",
+"song3.mp3",
+"song4.mp3",
+"song5.mp3"
+];
+
+/* SAFE FRUTIGER AERO BLUE ICONS */
+const icons=[
+"💧",
+"🌊",
+"💎",
+"🫧",
+"💿"
+];
+
+let i=0;
+
+const audio=document.getElementById("audio");
+const title=document.getElementById("title");
+const bar=document.getElementById("bar");
+const current=document.getElementById("current");
+const remaining=document.getElementById("remaining");
+const icon=document.getElementById("icon");
+
+function format(t){
+if(isNaN(t)) return "0:00";
+let m=Math.floor(t/60);
+let s=Math.floor(t%60);
+return `${m}:${s<10?"0"+s:s}`;
+}
+
+function loadSong(index,auto=false){
+
+i=index;
+
+audio.src=songs[i];
+title.textContent=songs[i];
+
+icon.textContent=icons[i];
+
+if(auto){
+audio.play();
+}
+}
+
+function playPause(){
+if(audio.paused) audio.play();
+else audio.pause();
+}
+
+function next(){
+i=(i+1)%songs.length;
+loadSong(i,true);
+}
+
+function prev(){
+i=(i-1+songs.length)%songs.length;
+loadSong(i,true);
+}
+
+/* time */
+audio.addEventListener("timeupdate",()=>{
+
+if(audio.duration){
+
+bar.style.width=(audio.currentTime/audio.duration)*100+"%";
+
+current.textContent=format(audio.currentTime);
+remaining.textContent="-"+format(audio.duration-audio.currentTime);
+
+}
+
+});
+
+/* auto next */
+audio.addEventListener("ended",()=>{
+next();
+});
+
+/* 🌙 TOGGLE */
+function toggleTheme(){
+document.body.classList.toggle("night");
+}
+
+/* init */
+loadSong(0);
+
+</script>
+
+</body>
+</html>
